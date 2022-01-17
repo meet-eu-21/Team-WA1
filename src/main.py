@@ -7,11 +7,17 @@ from assess.evaluator import evaluate_results
 
 
 def final_algorithm_with_evaluation(matrix_filepath, expected_results, results_filepath):
-    # topdom_images_filepath = f"{results_filepath}/topdom/{chromosome}.results.png"
+    # topdom_images_filepath = f"{results_filepath}/topdom/{chromosome}.results.images.png"
     topdom_images_filepath = None
 
-    topdom_metrics_filepath = f"{results_filepath}/topdom/{chromosome}.results.txt"
+    topdom_metrics_filepath = f"{results_filepath}/topdom/{chromosome}.results.metrics.txt"
     # topdom_metrics_filepath = None
+
+    topdom_found_filepath = f"{results_filepath}/topdom/{chromosome}.results.found.txt"
+    # topdom_found_filepath = None
+
+    topdom_expected_filepath = f"{results_filepath}/topdom/{chromosome}.results.expected.txt"
+    # topdom_expected_filepath = None
 
     imported_and_adjusted_matrix_topdom, results_topdom = tpd.run(matrix_filepath, R, 0.227)
     evaluate_results(algorithm_results=results_topdom,
@@ -19,7 +25,9 @@ def final_algorithm_with_evaluation(matrix_filepath, expected_results, results_f
                      mtx=imported_and_adjusted_matrix_topdom,
                      expected_results=expected_results,
                      metrics_filepath=topdom_metrics_filepath,
-                     images_filepath=topdom_images_filepath)
+                     images_filepath=topdom_images_filepath,
+                     found_filepath=topdom_found_filepath,
+                     expected_filepath=topdom_expected_filepath)
 
     # imported_and_adjusted_matrix_arrowhead, results_arrowhead = awhd.run(matrix_filepath)
     # evaluate_results(algorithm_results=results_arrowhead,

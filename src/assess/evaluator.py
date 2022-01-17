@@ -4,7 +4,9 @@ import plots.plots as p
 
 def evaluate_results(algorithm_results, mtx, expected_results, show=True,
                      metrics_filepath=None,
-                     images_filepath=None):
+                     images_filepath=None,
+                     expected_filepath=None,
+                     found_filepath=None):
     algorithm_tads_amount = len(algorithm_results)
     expected_tad_count = len(expected_results)
     algorithm_tads_mean_length = sum([i[1] - i[0] for i in algorithm_results]) / len(algorithm_results)
@@ -28,3 +30,13 @@ def evaluate_results(algorithm_results, mtx, expected_results, show=True,
             out.write(f"matching : {sum(matching_metric_results) / len(matching_metric_results)}%" + '\n')
     if images_filepath is not None:
         p.save_results_on_top_of_arrowhead(mtx, expected_results, algorithm_results, images_filepath)
+    if expected_filepath is not None:
+        with open(expected_filepath, 'w') as out:
+            out.truncate()
+            for tad in expected_results:
+                out.write(f"{tad[0]}, {tad[1]}\n")
+    if found_filepath is not None:
+        with open(found_filepath, 'w') as out:
+            out.truncate()
+            for tad in algorithm_results:
+                out.write(f"{tad[0]}, {tad[1]}\n")
