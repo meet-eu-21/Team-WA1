@@ -1,6 +1,6 @@
 from scipy import sparse
 
-import HiCtoolbox
+import utils.HiCtoolbox as HiCtoolbox
 from arrowhead.connected_components import largest_value_within_components
 from arrowhead.corner_score import *
 from plots.plots import *

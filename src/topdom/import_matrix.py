@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import sparse
 
-import HiCtoolbox
+import utils.HiCtoolbox as HiCtoolbox
 
 HiCfilename = './chr21_25kb.RAWobserved.txt'
 R = 100000

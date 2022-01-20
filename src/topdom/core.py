@@ -172,10 +172,12 @@ def topdom(np_matrix, window_size, sensitivity, pval_limit):
     return min_coords
 
 
-def run(matrix_filepath, R, alpha):
-    mtx = import_matrix.import_matrix(matrix_filepath, R)
-    # mtx = import_matrix.import_normalized_matrix(matrix_filepath, R, alpha)
-    topdom_coords = topdom(mtx, 5, 0.04, 0.05)
+def run(matrix_filepath, R, alpha=None, window_size=5, sensitivity=0.04, pval_limit=0.05):
+    if alpha is not None:
+        mtx = import_matrix.import_normalized_matrix(matrix_filepath, R, alpha)
+    else:
+        mtx = import_matrix.import_matrix(matrix_filepath, R)
+    topdom_coords = topdom(np_matrix=mtx, window_size=window_size, sensitivity=sensitivity, pval_limit=pval_limit)
     return mtx, topdom_coords
 
 

@@ -5,7 +5,6 @@ from matplotlib.colors import TwoSlopeNorm, LogNorm
 
 DEFAULT_DPI = 600
 
-
 def show_arrowhead_matrix(A):
     plot = sns.heatmap(A, cmap=sns.color_palette("vlag", as_cmap=True), center=0)
     plt.show()
@@ -54,6 +53,7 @@ def show_results_on_top_of_arrowhead(arrowhead_matrix, results):
 
 
 def save_results_on_top_of_arrowhead(data, correct, obtained, save_filepath):
+    plt.clf()
     plot = sns.heatmap(data, cmap='YlOrRd', norm=LogNorm())
     display_tads(correct, 'g')
     display_tads(obtained)
@@ -61,6 +61,7 @@ def save_results_on_top_of_arrowhead(data, correct, obtained, save_filepath):
 
 
 def show_correct_and_obtained_results(data, correct, obtained):
+    plt.clf()
     plot = sns.heatmap(data, cmap='YlOrRd', norm=LogNorm())
     display_tads(correct, 'g')
     display_tads(obtained)
