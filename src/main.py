@@ -109,6 +109,14 @@ def init_parser(parser):
     parser.add_argument('--should-show', type=bool, default=False,
                         help="Should show each results, omitting means False")
 
+    parser.add_argument('--should-use-other-results-as-golden', type=bool, default=False,
+                        help="Should use other teams results as golden, omitting means False")
+
+    parser.add_argument('--provided-other-teams-results-path',
+                        type=str,
+                        default='../results/team-wa2/all_results.csv',
+                        help="Relative or absolute path to provided other team results.")
+
     parser.add_argument('--provided-arrowhead-results-path',
                         type=str,
                         default='../data/www.lcqb.upmc.fr/meetu/dataforstudent/TAD/GSE63525_GM12878_primary+replicate_Arrowhead_domainlist.txt',
@@ -135,13 +143,25 @@ if __name__ == "__main__":
 
     data_path = args.data_path
     chromosomes = {}
-    with open(args.provided_arrowhead_results_path, 'r') as results_file:
-        next(results_file)
-        for line in results_file:
-            str = line.split('\t', 3)
-            if not str[0] in chromosomes:
-                chromosomes[str[0]] = []
-            chromosomes[str[0]].append((int(str[1]) / R, int(str[2]) / R))
+    if args.should_use_other_results_as_golden:
+        with open(args.provided_other_teams_results_path, 'r') as results_file:
+            next(results_file)
+            for line in results_file:
+                parsed_lined = line.strip().split(',', 4)
+                if parsed_lined[3] == 'domain':
+                    key = parsed_lined[0][3:]
+                    if key not in chromosomes:
+                        chromosomes[key] = list()
+                    chromosomes[parsed_lined[0][3:]].append((int(parsed_lined[1]) / R, int(parsed_lined[2]) / R))
+    else:
+        with open(args.provided_arrowhead_results_path, 'r') as results_file:
+            next(results_file)
+            for line in results_file:
+                str = line.split('\t', 3)
+                if not str[0] in chromosomes:
+                    chromosomes[str[0]] = []
+                chromosomes[str[0]].append((int(str[1]) / R, int(str[2]) / R))
+
     for chromosome in chromosomes:
         if chromosome in chosen_chromosomes_to_processing:
             for filename in glob.glob(os.path.join(data_path, 'chr' + chromosome + '_*.RAWobserved')):
