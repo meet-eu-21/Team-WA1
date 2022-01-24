@@ -6,7 +6,8 @@ def evaluate_results(algorithm_results, mtx, expected_results, show=True,
                      metrics_filepath=None,
                      images_filepath=None,
                      expected_filepath=None,
-                     found_filepath=None):
+                     found_filepath=None,
+                     R=100000):
     algorithm_tads_amount = len(algorithm_results)
     expected_tad_count = len(expected_results)
     algorithm_tads_mean_length = sum([i[1] - i[0] for i in algorithm_results]) / len(algorithm_results)
@@ -39,4 +40,4 @@ def evaluate_results(algorithm_results, mtx, expected_results, show=True,
         with open(found_filepath, 'w') as out:
             out.truncate()
             for tad in algorithm_results:
-                out.write(f"{tad[0]}, {tad[1]}\n")
+                out.write(f"{tad[0] * R}, {tad[1] * R}\n")

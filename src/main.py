@@ -11,7 +11,7 @@ def final_algorithm_with_evaluation(matrix_filepath, expected_results, results_f
                                     should_run_arrowhead, should_run_topdom,
                                     should_dump_metrics, should_dump_coordinates, should_dump_expected_coordinates,
                                     should_dump_images, topdom_normalization_alpha, topdom_sensitivity,
-                                    topdom_window_size, topdom_pval_limit, should_show):
+                                    topdom_window_size, topdom_pval_limit, should_show, R):
     if should_run_topdom:
         topdom_images_filepath = \
             f"{results_filepath}/topdom/{chromosome}.results.images.png" if should_dump_images else None
@@ -39,7 +39,8 @@ def final_algorithm_with_evaluation(matrix_filepath, expected_results, results_f
                          metrics_filepath=topdom_metrics_filepath,
                          images_filepath=topdom_images_filepath,
                          found_filepath=topdom_found_filepath,
-                         expected_filepath=topdom_expected_filepath)
+                         expected_filepath=topdom_expected_filepath,
+                         R=R)
     if should_run_arrowhead:
         arrowhead_images_filepath = \
             f"{results_filepath}/arrowhead/{chromosome}.results.images.png" if should_dump_images else None
@@ -61,7 +62,8 @@ def final_algorithm_with_evaluation(matrix_filepath, expected_results, results_f
                          metrics_filepath=arrowhead_metrics_filepath,
                          images_filepath=arrowhead_images_filepath,
                          found_filepath=arrowhead_found_filepath,
-                         expected_filepath=arrowhead_expected_filepath)
+                         expected_filepath=arrowhead_expected_filepath,
+                         R=R)
 
 
 def init_parser(parser):
@@ -156,4 +158,5 @@ if __name__ == "__main__":
                                                 topdom_sensitivity=args.topdom_sensitivity,
                                                 topdom_window_size=args.topdom_window_size,
                                                 topdom_pval_limit=args.topdom_pval_limit,
-                                                should_show=args.should_show)
+                                                should_show=args.should_show,
+                                                R=R)
