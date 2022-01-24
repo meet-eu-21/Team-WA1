@@ -14,27 +14,20 @@ def l2d_to_1d(list2d):
 
 
 def generate_binsignal(matrix, k):
-    n = len(matrix)
-    binsignal = []
-    for i in range(n):
-        sig = matrix[i - k:i, i:i + k].mean()
+    binsignal = [matrix[0,0] if not math.isnan(matrix[0,0]) and not math.isinf(matrix[0,0]) else 0]
+    for i in range(1,len(matrix)):
+        sig = matrix[0 if i-k<0 else i-k : i, i:i + k].mean()
         binsignal.append(0 if math.isinf(sig) else sig)
-    return binsignal[k: n - k]
+    return binsignal
 
 
 def flatten_binsignal(binsignal, sensitivity, bins):
-    ################################ POCZĄTEK WYPŁASZCZANIA
-    # diff to różnica, na podstawie której znajdowane będą obszary zawierające ekstrema, których
-    # wartości wahają się o małe odchylenia
-    # zmniejszając go z np 0.05 do 0.025 wzrasta czułość wykrywania tadów dla danych testowych,
-    # polecam sprawdzić dla różnych parametrów i się przekonać, dla 0.025 były najlepsze rezulatay,
-    # poniżej zaczynało już tworzyć dziwne arefakty
-    min_bin = min(binsignal)
-    max_bin = max(binsignal)
-    diff = (max_bin - min_bin) * sensitivity
-    # wydobycie WSZYSTKICH ekstremów lokalnych z binsignalu
-    extremes_positions = []
-    extremes_values = []
+    # Algorithm explanation - link below:
+    # https://drive.google.com/file/d/13iEmGw6RxeWfnzsDbzO1WL9vHXpSi_Uf/view?usp=sharing
+
+    # Step 1. Replace binsignal with local extremes
+    extremes_positions = [0]
+    extremes_values = [binsignal[0]]
     for i in range(1, len(binsignal) - 1):
         if binsignal[i - 1] > binsignal[i] < binsignal[i + 1]:
             extremes_positions.append(bins[i])
@@ -42,45 +35,71 @@ def flatten_binsignal(binsignal, sensitivity, bins):
         elif binsignal[i - 1] < binsignal[i] > binsignal[i + 1]:
             extremes_positions.append(bins[i])
             extremes_values.append(binsignal[i])
-    # sztuczne dodanie na końcu minimum lokalnego o takiej wartości, że nie zostanie
-    # poźniej przybliżone poziomą prostą
-    extremes_values[-1] = extremes_values[-2] - 2 * diff
-    # wydobycie z ekstremów informacji o tym, które rejony można przybliżyć
-    # poziomą prostą
+    extremes_positions.append(len(binsignal)-1)
+    extremes_values.append(binsignal[-1])
+    # Step 2. Calculate maximum and minimum value and multiply their difference by sensitivity parameter
+    min_bin = min(binsignal)
+    max_bin = max(binsignal)
+    diff = (max_bin - min_bin) * sensitivity
+
+    # Step 3. Filter out noise in the data, by replacing regions with fluctuations below calculated number
+    # with flat lines
+
+    # Find regions that will be replaced with flat lines
+    # note: these regions will be represented in flat_areas list as tuples - (a,b), where a,b are indexes
+    # of extremes_positions list - different from bins' indexes
     flat_areas = []
     flat_area_beginning = 0
-    for i in range(1, len(extremes_positions)):
+    for i in range(1, len(extremes_positions)-1):
         if abs(extremes_values[i] - extremes_values[i - 1]) > diff:
             if extremes_positions[i - 1] - extremes_positions[flat_area_beginning] > 1:
                 flat_areas.append((flat_area_beginning, i - 1))
             flat_area_beginning = i
-    # stworzenie nowej listy ekstremów, w której obszary płaskie będą reprezentowane jako
-    # dwa punktu z początku i końca przedziału, mające taką samą wartość
-    # (równą średniej z ekstremów znajdujących się na początku i końcu przedziału)
-    new_extremes_positions = []
-    new_extremes_values = []
+    if flat_area_beginning!=i-1:
+        flat_areas.append((flat_area_beginning, i-1))
+
+    # Replace found regions in binsignal with 2 points (start and end coordinates)
+    new_binsignal_positions = [0]
+    new_binsignal_values = [binsignal[0]]
     last = 0
     for i in flat_areas:
-        new_extremes_positions += extremes_positions[last + 1:i[0]]
-        new_extremes_values += extremes_values[last + 1:i[0]]
+        # To new binsignal, add regions that are in between flat areas
+        new_binsignal_positions += extremes_positions[last + 1:i[0]]
+        new_binsignal_values += extremes_values[last + 1:i[0]]
 
-        new_extremes_positions.append(extremes_positions[i[0]])
-        new_extremes_positions.append(extremes_positions[i[1]])
-        new_extremes_values.append((extremes_values[i[0]] + extremes_values[i[1]]) / 2)
-        new_extremes_values.append((extremes_values[i[0]] + extremes_values[i[1]]) / 2)
+        new_binsignal_positions.append(extremes_positions[i[0]])
+        new_binsignal_positions.append(extremes_positions[i[1]])
+        value = (extremes_values[i[0]] + extremes_values[i[1]]) / 2
+        new_binsignal_values.append(value)
+        new_binsignal_values.append(value)
         last = i[1]
-    ################################ KONIEC WYPŁASZCZANIA
-    return new_extremes_positions, new_extremes_values
+    new_binsignal_positions.append(extremes_positions[-1])
+    new_binsignal_values.append(extremes_values[-1])
+
+    return new_binsignal_positions, new_binsignal_values
 
 
 def find_minimums(posits, vals):
-    min_posits = []
-    min_vals = []
-    for i in range(1, len(vals) - 1):
-        if vals[i - 1] > vals[i] <= vals[i + 1]:
-            min_posits.append(posits[i])
-            min_vals.append(vals[i])
-    return min_posits, min_vals
+    # This function is used to return informations about minimums in flattened binsignal.
+    # Note: It will return first and last elements as minimums.
+    min_positions = [posits[0]]
+    min_values = [vals[0]]
+    last_min_index = 0
+    is_descending = False
+
+    for i in range(1, len(vals)):
+        if vals[i] < vals[i-1]:
+            last_min_index = i
+            is_descending = True
+        elif vals[i] > vals[i-1]:
+            if is_descending:
+                min_positions.append(posits[last_min_index])
+                min_values.append(vals[last_min_index])
+            is_descending = False
+    min_positions.append(posits[-1])
+    min_values.append(vals[-1])
+
+    return min_positions, min_values
 
 
 def statistical_filtering(matrix, min_coords, wsize, msize):
@@ -139,37 +158,30 @@ def vizualize_coords(coords, color):
         plt.vlines(coo[1], coo[0], coo[1], colors=color)
 
 
-def topdom_visual(np_matrix, window_size, sensitivity):
-    binsignal = generate_binsignal(np_matrix, window_size)
-    print(binsignal)
-    plt.plot(binsignal)
-    plt.show()
-    bins = list(range(window_size, len(np_matrix) - window_size))
-    new_extremes_positions, new_extremes_values = flatten_binsignal(binsignal, sensitivity, bins)
-    # TODO implement better min search
-    minima_positions, minima_values = find_minimums(new_extremes_positions, new_extremes_values)
-    min_coords = []
-    for i in range(len(minima_positions) - 1):
-        min_coords.append((minima_positions[i], minima_positions[i + 1]))
-    print("minima: " + str(len(min_coords)))
-    p_values = statistical_filtering(np_matrix, minima_positions, window_size, len(np_matrix) - window_size)
-    vizualize_signal(new_extremes_positions, new_extremes_values, minima_positions, minima_values)
-    visualize_pvalue(minima_positions, p_values, 0.05)
-    vizualize_tads(np_matrix, minima_positions)
+def topdom_visual(np_matrix, window_size, sensitivity, pval_limit):
+    topdom(np_matrix, window_size, sensitivity, pval_limit, visual=True)
 
 
-def topdom(np_matrix, window_size, sensitivity, pval_limit):
+def topdom(np_matrix, window_size, sensitivity, pval_limit, visual=False):
+    #Step 1 - generate binsignal from matrix
     binsignal = generate_binsignal(np_matrix, window_size)
-    bins = list(range(window_size, len(np_matrix) - window_size))
-    new_extremes_positions, new_extremes_values = flatten_binsignal(binsignal, sensitivity, bins)
-    # TODO implement better min search
-    minima_positions, minima_values = find_minimums(new_extremes_positions, new_extremes_values)
-    min_coords = []
-    for i in range(len(minima_positions) - 1):
-        min_coords.append((minima_positions[i], minima_positions[i + 1]))
-    p_values = statistical_filtering(np_matrix, minima_positions, window_size, len(np_matrix) - window_size)
-    filter_coords(min_coords, p_values, pval_limit)
-    return min_coords
+    bins = list(range(len(np_matrix)))
+    #Step 2 - Flatten binsignal and find minima
+    flattened_binsignal_positions, flatenned_binsignal_values = flatten_binsignal(binsignal, sensitivity, bins)
+    minima_positions, minima_values = find_minimums(flattened_binsignal_positions, flatenned_binsignal_values)
+    tad_coords = [(minima_positions[i], minima_positions[i + 1]) for i in range(len(minima_positions) - 1) ]
+    # #Step 3 - Filter results TODO fix this part
+    # p_values = statistical_filtering(np_matrix, minima_positions, window_size, len(np_matrix) - window_size)
+    # if visual:
+    #     print("minima: " + str(len(tad_coords)))
+    #     print(binsignal)
+    #     plt.plot(binsignal)
+    #     plt.show()
+    #     vizualize_signal(flattened_binsignal_positions, flatenned_binsignal_values, minima_positions, minima_values)
+    #     visualize_pvalue(minima_positions, p_values, pval_limit)
+    #     vizualize_tads(np_matrix, minima_positions)
+    # filter_coords(tad_coords, p_values, pval_limit)
+    return tad_coords
 
 
 def run(matrix_filepath, R, alpha=None, window_size=5, sensitivity=0.04, pval_limit=0.05):
@@ -183,7 +195,8 @@ def run(matrix_filepath, R, alpha=None, window_size=5, sensitivity=0.04, pval_li
 
 if __name__ == "__main__":
     a = import_matrix.import_matrix('./data/chr21_25kb.RAWobserved.txt', 25000)
-    for win in [5]:
-        for sns in [0.04]:
-            print("Window size: " + str(win) + ", sensitivity: " + str(sns))
-            topdom_visual(a, win, sns)
+    win = 5
+    sns = 0.04
+    pval = 0.05
+    print("Window size: " + str(win) + ", sensitivity: " + str(sns))
+    topdom_visual(a, win, sns, pval)
