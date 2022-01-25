@@ -14,6 +14,7 @@ def l2d_to_1d(list2d):
 
 
 def generate_binsignal(matrix, k):
+    # Calculate mean value for each bin. If unable to, assign 0 instead.
     binsignal = [matrix[0,0] if not math.isnan(matrix[0,0]) and not math.isinf(matrix[0,0]) else 0]
     for i in range(1,len(matrix)):
         sig = matrix[0 if i-k<0 else i-k : i, i:i + k].mean()
@@ -155,6 +156,7 @@ def visualize_pvalue(min_pos, pvalues, pvalue_cut):
 
 
 def vizualize_coords(coords, color):
+    # TODO: Repeated in plots.py, delete if unnecessary
     for coo in coords:
         plt.hlines(coo[0], coo[0], coo[1], colors=color)
         plt.vlines(coo[0], coo[0], coo[1], colors=color)
@@ -163,6 +165,7 @@ def vizualize_coords(coords, color):
 
 
 def topdom_visual(np_matrix, window_size, sensitivity, pval_limit):
+    # TODO: Delete if unnecessary
     topdom(np_matrix, window_size, sensitivity, pval_limit, visual=True)
 
 
@@ -174,17 +177,17 @@ def topdom(np_matrix, window_size, sensitivity, pval_limit, visual=False):
     flattened_binsignal_positions, flatenned_binsignal_values = flatten_binsignal(binsignal, sensitivity, bins)
     minima_positions, minima_values = find_minimums(flattened_binsignal_positions, flatenned_binsignal_values)
     tad_coords = [(minima_positions[i], minima_positions[i + 1]) for i in range(len(minima_positions) - 1) ]
-    # #Step 3 - Filter results TODO fix this part
-    # p_values = statistical_filtering(np_matrix, minima_positions, window_size, len(np_matrix) - window_size)
-    # if visual:
-    #     print("minima: " + str(len(tad_coords)))
-    #     print(binsignal)
-    #     plt.plot(binsignal)
-    #     plt.show()
-    #     vizualize_signal(flattened_binsignal_positions, flatenned_binsignal_values, minima_positions, minima_values)
-    #     visualize_pvalue(minima_positions, p_values, pval_limit)
-    #     vizualize_tads(np_matrix, minima_positions)
-    # filter_coords(tad_coords, p_values, pval_limit)
+    #Step 3 - Filter results
+    p_values = statistical_filtering(np_matrix, minima_positions, window_size, len(np_matrix) - window_size)
+    if visual:
+        print("minima: " + str(len(tad_coords)))
+        print(binsignal)
+        plt.plot(binsignal)
+        plt.show()
+        vizualize_signal(flattened_binsignal_positions, flatenned_binsignal_values, minima_positions, minima_values)
+        visualize_pvalue(minima_positions, p_values, pval_limit)
+        vizualize_tads(np_matrix, minima_positions)
+    filter_coords(tad_coords, p_values, pval_limit)
     return tad_coords
 
 
@@ -198,7 +201,8 @@ def run(matrix_filepath, R, alpha=None, window_size=5, sensitivity=0.04, pval_li
 
 
 if __name__ == "__main__":
-    a = import_matrix.import_matrix('./data/chr21_25kb.RAWobserved.txt', 25000)
+    # Mainly to debug
+    a = import_matrix.import_matrix('insert_path_here', 25000)
     win = 5
     sns = 0.04
     pval = 0.05
