@@ -1,12 +1,9 @@
 import numpy as np
 
-# future parameters of the program
 MIN_TAD_HEIGHT = 3
 thresholds = [0.2, 0.5, 0.4]
 
-
 def generate_arrowhead_matrix(M):
-    # print("Generating arrowhead matrix...")
     column_size, row_size = M.shape
     A = np.zeros(M.shape)
     for i in range(column_size):
@@ -14,7 +11,8 @@ def generate_arrowhead_matrix(M):
             a = M[i, i + d]
             b = M[i, i - d] if i - d >= 0 else 0
             A[i, i + d] = (a - b) * (a + b)
-            A[i + d, i] = (a - b) * (a + b)  # this line is only needed for visualization
+            #A[i + d, i] = (a - b) * (a + b)  
+            # if you want to visualize full arrowhead matrix, uncomment line above
 
     return A
 
@@ -60,8 +58,7 @@ def compute_sum(A, type):
     return [U, L]
 
 
-# Computes variance of N elements with sum S_1 and sum of squares S_2
-# Possibly numerically unstable
+# computes variance of N elements with sum S_1 and sum of squares S_2
 def var(S_1, S_2, N):
     return (S_2 / N - (S_1 / N) ** 2) * (N / (N - 1)) if N > 1 else 0
 
@@ -96,7 +93,6 @@ def normalize(M):
 
 
 def compute_score_matrix(A):
-    # print("Computing corner score matrix...")
     U_sign, L_sign = compute_sum(A, 'sign')
     U_sum, L_sum = compute_sum(A, 'value')
     S_var, U_mean_sgn, L_mean_sgn = compute_variance_and_mean_sgn(A, U_sign, L_sign, U_sum, L_sum)
@@ -118,7 +114,6 @@ def compute_score_matrix(A):
 
 
 def compute_filtered_score_matrix(S_corner, S_var, U_mean_sgn, L_mean_sgn):
-    # print("Applying filters to corner score matrix...")
     N = S_corner.shape[0]
     t1, t2, t3 = thresholds
     S_filtered = S_corner.copy()
@@ -146,4 +141,3 @@ def compute_filtered_score_matrix(S_corner, S_var, U_mean_sgn, L_mean_sgn):
 
     S_filtered += S_corner
     return S_filtered
-    # return S_corner.copy()

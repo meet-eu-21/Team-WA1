@@ -1,9 +1,9 @@
 from scipy import sparse
-
 import utils.HiCtoolbox as HiCtoolbox
 from arrowhead.connected_components import largest_value_within_components
 from arrowhead.corner_score import *
 from plots.plots import *
+
 
 R = 100000
 
@@ -35,32 +35,3 @@ def run(matrix_file_path):
     mtx = import_matrix(matrix_file_path)
     results = compute_algorithm(mtx)
     return mtx, results
-
-
-# if __name__ == "__main__":
-#     mtx = import_matrix('../data/x/chr21_25kb.RAWobserved')
-#     results = compute_algorithm(mtx)
-#     chromosome = 21
-#     evaluate_results(which_chromosome=chromosome, algorithm_results=results, show=False,
-#                      metrics_filepath=f"./results/{chromosome}.results.txt",
-#                      images_filepath=f"../results/{chromosome}.results.png")
-
-# A = load_test_matrix()
-# # A = import_matrix('data\chr21_25kb.RAWobserved')
-# normalize(A)
-# # pd.DataFrame(A).to_csv("chr21.csv")
-# arrowhead_matrix = generate_arrowhead_matrix(A)
-# S_corner, S_var, U_mean_sgn, L_mean_sgn = compute_score_matrix(arrowhead_matrix)
-# corner_score = S_corner.copy()
-# S = compute_filtered_score_matrix(S_corner, S_var, U_mean_sgn, L_mean_sgn)
-# # show_initial_matrix(S)
-# # for i in range(S.shape[0]):
-# #     if S[i,i] != 0:
-# #         print(i)
-# # show_unfiltered_corner_score_matrix(corner_score)
-# # show_initial_matrix(S)
-# results = largest_value_within_components(S)
-# show_results_on_top_of_data(A, results)
-# # print_results(results)
-# # show_results_on_unfiltered_corner_scores(corner_score, results)
-# # show_results_on_top_of_arrowhead(arrowhead_matrix, results)

@@ -1,15 +1,6 @@
 import numpy as np
 import scipy.sparse.csgraph as sc
 
-example_array = np.array([[0, 0.4, 0.99, 0, 0, 0, 0, 0],
-                          [0.4, 0, 0.8, 0, 0, 0, 0, 0],
-                          [0.99, 0.8, 0, 0, 0, 0, 0, 0],
-                          [0, 0, 0, 0, 0.7, 0, 1, 0],
-                          [0, 0, 0, 1, 0, 0.2, 0, 0],
-                          [0, 0, 0, 0, 1, 0, 1, 0],
-                          [0, 0, 0, 1, 0, 0.222, 0, 0],
-                          [0, 0, 0, 0, 0, 0, 0, 0]])
-
 
 def connected_components(matrix):
     tmp = matrix.copy()
@@ -35,6 +26,3 @@ def largest_value_within_components(matrix):
         if coordinates[0][0] != coordinates[0][1]:
             output.append((coordinates[0][0], coordinates[0][1]))
     return output
-
-
-# print(largest_value_within_components(example_array))
