@@ -4,7 +4,6 @@
 #Carron Leopold
 #specific utils tools for hic need
 
-import h5py
 import numpy as np
 from scipy import sparse
 

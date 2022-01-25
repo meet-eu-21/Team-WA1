@@ -7,12 +7,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
+# This script creates toy matrix with given parameters, that can be used for testing purposes.
 
 def create_square(matrix, size, left_up_corner, min_value, max_value):
     for i in range(size):
         for j in range(size):
             matrix[left_up_corner + i][left_up_corner + j] = max(matrix[left_up_corner + i][left_up_corner + j], random.randint(min_value, max_value))
-    print('Pozycje od: {} do: {}, wartości od: {} do {}'.format(left_up_corner, left_up_corner + size,
+    print('Positions from: {} to: {}, values from: {} to {}'.format(left_up_corner, left_up_corner + size,
                                                                 min_value, max_value))
 
 
