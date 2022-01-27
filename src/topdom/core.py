@@ -10,11 +10,12 @@ warnings.filterwarnings("ignore")
 
 
 def l2d_to_1d(list2d):
+    # Flattens 2D list to 1D (for wilcoxon function)
     return [j for i in list2d for j in i]
 
 
 def generate_binsignal(matrix, k):
-    # Calculate mean value for each bin. If unable to, assign 0 instead.
+    # Calculate mean value of the interactions for k-neighborhood of each bin. If unable to, assign 0 instead.
     binsignal = [matrix[0,0] if not math.isnan(matrix[0,0]) and not math.isinf(matrix[0,0]) else 0]
     for i in range(1,len(matrix)):
         sig = matrix[0 if i-k<0 else i-k : i, i:i + k].mean()
@@ -104,6 +105,8 @@ def find_minimums(posits, vals):
 
 
 def statistical_filtering(matrix, min_coords, wsize, msize):
+    # For each minimum, we examine the hypothesis (using the wilcoxon test)
+    # that it comes (with window size accuracy) from the same distribution as its neighborhood
     p_values = []
     for i in min_coords:
         lower = max(1, i - wsize)
@@ -121,6 +124,7 @@ def statistical_filtering(matrix, min_coords, wsize, msize):
 
 
 def filter_coords(coords, p_values, p_limit):
+    # Deletes coordinates with a p-value less than the set limit 
     delete = []
     for i in range(len(coords)):
         if max(p_values[i], p_values[i + 1]) > p_limit:
