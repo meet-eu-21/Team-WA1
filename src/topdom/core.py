@@ -133,47 +133,7 @@ def filter_coords(coords, p_values, p_limit):
     for i in delete:
         coords.pop(i)
 
-
-def vizualize_tads(matrix, min_pos):
-    plt.imshow(matrix, cmap='Wistia')
-    for i in range(len(min_pos) - 1):
-        plt.hlines(min_pos[i], min_pos[i], min_pos[i + 1])
-        plt.vlines(min_pos[i], min_pos[i], min_pos[i + 1])
-        plt.hlines(min_pos[i + 1], min_pos[i], min_pos[i + 1])
-        plt.vlines(min_pos[i + 1], min_pos[i], min_pos[i + 1])
-    plt.show()
-
-
-def vizualize_signal(exr_pos, exr_vals, min_pos, min_vals):
-    plt.plot(exr_pos, exr_vals, color='orange')
-    plt.grid()
-    plt.scatter(min_pos, min_vals, color='red', s=8)
-    # plt.savefig('name_here.png', dpi=300)
-    plt.show()
-
-
-def visualize_pvalue(min_pos, pvalues, pvalue_cut):
-    if len(min_pos) > 0:
-        plt.hlines(pvalue_cut, min_pos[0], min_pos[len(min_pos) - 1], color='red')
-        plt.scatter(min_pos, pvalues, color='green', s=8)
-        plt.show()
-
-
-def vizualize_coords(coords, color):
-    # TODO: Repeated in plots.py, delete if unnecessary
-    for coo in coords:
-        plt.hlines(coo[0], coo[0], coo[1], colors=color)
-        plt.vlines(coo[0], coo[0], coo[1], colors=color)
-        plt.hlines(coo[1], coo[0], coo[1], colors=color)
-        plt.vlines(coo[1], coo[0], coo[1], colors=color)
-
-
-def topdom_visual(np_matrix, window_size, sensitivity, pval_limit):
-    # TODO: Delete if unnecessary
-    topdom(np_matrix, window_size, sensitivity, pval_limit, visual=True)
-
-
-def topdom(np_matrix, window_size, sensitivity, pval_limit, visual=False):
+def topdom(np_matrix, window_size, sensitivity, pval_limit):
     #Step 1 - generate binsignal from matrix
     binsignal = generate_binsignal(np_matrix, window_size)
     bins = list(range(len(np_matrix)))
@@ -183,14 +143,6 @@ def topdom(np_matrix, window_size, sensitivity, pval_limit, visual=False):
     tad_coords = [(minima_positions[i], minima_positions[i + 1]) for i in range(len(minima_positions) - 1) ]
     #Step 3 - Filter results
     p_values = statistical_filtering(np_matrix, minima_positions, window_size, len(np_matrix) - window_size)
-    if visual:
-        print("minima: " + str(len(tad_coords)))
-        print(binsignal)
-        plt.plot(binsignal)
-        plt.show()
-        vizualize_signal(flattened_binsignal_positions, flatenned_binsignal_values, minima_positions, minima_values)
-        visualize_pvalue(minima_positions, p_values, pval_limit)
-        vizualize_tads(np_matrix, minima_positions)
     filter_coords(tad_coords, p_values, pval_limit)
     return tad_coords
 
@@ -211,4 +163,4 @@ if __name__ == "__main__":
     sns = 0.04
     pval = 0.05
     print("Window size: " + str(win) + ", sensitivity: " + str(sns))
-    topdom_visual(a, win, sns, pval)
+    topdom(a, win, sns, pval)
