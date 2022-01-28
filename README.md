@@ -34,10 +34,11 @@ Topic A : Prediction of TADs
 ## Run:
 1. install `python3`
 2. install required packages
-3. download and unpack data or adjust paths in script (file `main.py`)
-4. in src directory `python3 main.py`
+3. download and unpack data (can use scripts directory)
+4. in src directory `python3 main.py {args}` (available args and their behaviour can be found in `summary_report.pdf`)
+* example: `python3 main.py--results-path=../results --resolution=100k --data-path=../data/www.lcqb.upmc.fr/meetu/dataforstudent/HiC/GM12878/100kb_resolution_intrachromosomal --run-topdom=True --with-metrics-results=True --with-results-coordinates=True --topdom-sensitivity=0.04 --topdom-window-size=5 --chromosomes=1,22,X`
 
 ## Results:
-1. Results should be available in `results/topdom` directory (arrowhead is disabled)
-2. Currently, script is tailored to 25kb data and results in directory base on this data (you can use 100kb, but result names would not adjust)
+1. Results should be available in `{desired directory}/topdom` / `{desired directory}/arrowhead` directory
+2. Remember to change resolution if you change data
 
