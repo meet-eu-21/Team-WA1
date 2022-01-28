@@ -21,7 +21,7 @@ Topic A : Prediction of TADs
 * navigate to terminal
 * `ssh -T git@github.com -i ~/.ssh/<given-name>`
 * now I can:
-* `git clone git@github.com:<scope-user>/<project-name>.git`, in our case `git clone git@github.com:kot-sebastian/ipz-tad.git`
+* `git clone git@github.com:<scope-user>/<project-name>.git`, in our case `git clone git@github.com:meet-eu-21/Team-WA1.git`
 
 ## Data description:
 1. HiC - data to our algorithms
