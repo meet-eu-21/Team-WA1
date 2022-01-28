@@ -113,11 +113,12 @@ def statistical_filtering(matrix, min_coords, wsize, msize):
         up_mtx = matrix[lower:i, lower:i]
         upper = min(i + wsize, msize)
         down_mtx = matrix[i:upper, i:upper]
-        middle_mtx = matrix[i:i + wsize, lower:upper]
-        middle_lst = l2d_to_1d(middle_mtx)
+        middle_up = matrix[i:upper, lower:i]
+        middle_down = matrix[lower:i, i:upper]
+        middle_lst = l2d_to_1d(middle_up) + l2d_to_1d(middle_down)
         corner_lst = l2d_to_1d(down_mtx) + l2d_to_1d(up_mtx)
         if len(middle_lst) == len(corner_lst):
-            p_values.append(wilcoxon(middle_lst, corner_lst))
+            p_values.append(wilcoxon(middle_lst, corner_lst).pvalue)
         else:
             p_values.append(0)
     return p_values
